@@ -9,5 +9,4 @@
   ],
   "dependencies": [],
   "codeowners": ["@And3rsL"]
-  "config_flow": true
 }
