@@ -1,7 +1,7 @@
 {
   "domain": "visonicalarm",
-  "name": "Visonic/Bentel/Tyco Alarm System",
-  "documentation": "https://github.com/And3rsL/VisonicAlarm-for-Hassio",
+  "name": "Visonicalarm",
+  "documentation": "https://github.com/An",
   "version": "v3.3.1",
   "requirements": [
     "visonicalarm2==3.3.1",
@@ -9,4 +9,5 @@
   ],
   "dependencies": [],
   "codeowners": ["@And3rsL"]
+  "config_flow": true
 }
