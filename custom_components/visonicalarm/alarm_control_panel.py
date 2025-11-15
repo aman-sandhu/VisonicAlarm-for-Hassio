@@ -19,7 +19,7 @@ from homeassistant.const import (
 )
 
 # -------------------------------------------------------------
-# Compatibility shim for old and new Home Assistant versions
+# Compatibility shim for new vs old HA versions
 # -------------------------------------------------------------
 try:
     from homeassistant.components.alarm_control_panel import AlarmControlPanelState
@@ -43,7 +43,12 @@ except Exception:
     )
     AlarmControlPanelState = None
 
-from . import CONF_EVENT_HOUR_OFFSET, CONF_NO_PIN_REQUIRED, CONF_USER_CODE, HUB as hub
+from . import (
+    CONF_EVENT_HOUR_OFFSET,
+    CONF_NO_PIN_REQUIRED,
+    CONF_USER_CODE,
+    HUB as hub,
+)
 
 SUPPORT_VISONIC = (
     AlarmControlPanelEntityFeature.ARM_HOME |
@@ -62,7 +67,10 @@ ATTR_CHANGED_BY = "changed_by"
 ATTR_CHANGED_TIMESTAMP = "changed_timestamp"
 ATTR_ALARMS = "alarm"
 
-SCAN_INTERVAL = timedelta(seconds=10)
+# -------------------------------------
+# Reduce polling interval from 10 → 7s
+# -------------------------------------
+SCAN_INTERVAL = timedelta(seconds=7)
 
 
 # =====================================================================
@@ -74,7 +82,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     visonic_alarm = VisonicAlarm(hass)
     add_devices([visonic_alarm])
 
-    # Listen for changes to update last event info
+    # Listen for state changes to update last user info
     def arm_event_listener(event):
         entity_id = event.data.get("entity_id")
         old_state = event.data.get("old_state")
@@ -99,7 +107,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 
 # =====================================================================
-# Main alarm class
+# Main Visonic entity
 # =====================================================================
 class VisonicAlarm(AlarmControlPanelEntity):
     """Representation of a Visonic Alarm control panel."""
@@ -144,14 +152,14 @@ class VisonicAlarm(AlarmControlPanelEntity):
 
     @property
     def icon(self):
-        st = self._attr_state
-        if st == STATE_ALARM_ARMED_AWAY:
+        state = self._attr_state
+        if state == "armed_away":
             return "mdi:shield-lock"
-        if st == STATE_ALARM_ARMED_HOME:
+        if state == "armed_home":
             return "mdi:shield-home"
-        if st == STATE_ALARM_DISARMED:
+        if state == "disarmed":
             return "mdi:shield-check"
-        if st == STATE_ALARM_ARMING:
+        if state == "arming":
             return "mdi:shield-outline"
         return "hass:bell-ring"
 
@@ -172,14 +180,14 @@ class VisonicAlarm(AlarmControlPanelEntity):
         return self._event_hour_offset
 
     # -----------------------------------------------------------------
-    # Update event info
+    # Last event updater
     # -----------------------------------------------------------------
     def update_last_event(self, user, timestamp):
         self._changed_by = user
         self._changed_timestamp = timestamp
 
     # =================================================================
-    # Update alarm state (THIS IS THE IMPORTANT PART)
+    # Update state from panel
     # =================================================================
     def update(self):
         """Update alarm status from the Hub."""
@@ -187,28 +195,25 @@ class VisonicAlarm(AlarmControlPanelEntity):
 
         raw = hub.alarm.state
 
-        # Debug log to learn what the panel is REALLY sending
+        # Debug logging (send me these!)
         _LOGGER.warning(f"Visonic raw state: {raw}")
 
         if raw is None:
             self._attr_state = STATE_UNKNOWN
             return
 
-        # Normalize
         status = str(raw).strip().upper()
         _LOGGER.debug(f"Visonic normalized state: {status}")
 
-        # UNIVERSAL STATE MAPPING (handles many different panel firmwares)
+        # Universal mapping
         mapping = {
             "AWAY": STATE_ALARM_ARMED_AWAY,
             "ARMED_AWAY": STATE_ALARM_ARMED_AWAY,
             "ARM": STATE_ALARM_ARMED_AWAY,
-            "ARM_AWAY": STATE_ALARM_ARMED_AWAY,
 
             "HOME": STATE_ALARM_ARMED_HOME,
             "STAY": STATE_ALARM_ARMED_HOME,
             "ARMED_HOME": STATE_ALARM_ARMED_HOME,
-            "ARM_HOME": STATE_ALARM_ARMED_HOME,
 
             "DISARM": STATE_ALARM_DISARMED,
             "DISARMED": STATE_ALARM_DISARMED,
@@ -219,13 +224,18 @@ class VisonicAlarm(AlarmControlPanelEntity):
             "EXITDELAY": STATE_ALARM_ARMING,
 
             "ENTRYDELAY": STATE_ALARM_PENDING,
-            "PENDING": STATE_ALARM_PENDING,
 
             "ALARM": STATE_ALARM_TRIGGERED,
             "TRIGGERED": STATE_ALARM_TRIGGERED,
         }
 
-        self._attr_state = mapping.get(status, STATE_UNKNOWN)
+        new_state = mapping.get(status, STATE_UNKNOWN)
+
+        # Ensure enums become strings (HA requirement)
+        if hasattr(new_state, "value"):
+            new_state = new_state.value
+
+        self._attr_state = new_state
 
     # =================================================================
     # Commands
@@ -236,7 +246,8 @@ class VisonicAlarm(AlarmControlPanelEntity):
 
     def alarm_disarm(self, code=None):
         if not self._no_pin_required and code != self._code:
-            pn.create(self._hass,
+            pn.create(
+                self._hass,
                 "You entered the wrong disarm code.",
                 title="Disarm Failed"
             )
@@ -248,7 +259,8 @@ class VisonicAlarm(AlarmControlPanelEntity):
 
     def alarm_arm_home(self, code=None):
         if not self._no_pin_required and code != self._code:
-            pn.create(self._hass,
+            pn.create(
+                self._hass,
                 "You entered the wrong arm code.",
                 title="Arm Failed"
             )
@@ -267,7 +279,8 @@ class VisonicAlarm(AlarmControlPanelEntity):
 
     def alarm_arm_away(self, code=None):
         if not self._no_pin_required and code != self._code:
-            pn.create(self._hass,
+            pn.create(
+                self._hass,
                 "You entered the wrong arm code.",
                 title="Unable to Arm"
             )
