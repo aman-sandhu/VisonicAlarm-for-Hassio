@@ -12,6 +12,9 @@ from threading import Event
 
 _LOGGER = logging.getLogger(__name__)
 
+# <<< ADD THIS LINE
+_LOGGER.warning("USING PATCHED visonicalarm library, API v14 enabled")
+
 class Device(object):
     """ Base class definition of a device in the alarm system. """
 
