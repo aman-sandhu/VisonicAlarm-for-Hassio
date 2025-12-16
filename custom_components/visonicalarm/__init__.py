@@ -15,10 +15,6 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 import homeassistant.helpers.config_validation as cv
 
-REQUIREMENTS = [
-    'git+https://github.com/aman-sandhu/visonicalarm2.git@main#egg=visonicalarm2',
-    'python-dateutil==2.7.3'
-]
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,7 +60,7 @@ CONFIG_SCHEMA = vol.Schema({
 
 def setup(hass, config):
     """ Setup the Visonic Alarm component."""
-    from visonic import alarm as visonicalarm
+    from .visonic import alarm as visonicalarm
     global HUB
     HUB = VisonicAlarmHub(config[DOMAIN], visonicalarm)
     if not HUB.connect():
