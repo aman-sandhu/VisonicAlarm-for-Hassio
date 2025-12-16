@@ -240,46 +240,36 @@ class System(object):
 
     def connect(self):
         """ Connect to the alarm system and get the static system info. """
-
-        # Check that the server support API version 4.0 or 8.0.
         rest_versions = self.__api.get_version_info()['rest_versions']
-
-        if '8.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 8.0 is supported.')
-            self.__api.setVersionUrls('8.0')
-        elif '9.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 9.0 is supported.')
-            self.__api.setVersionUrls('9.0')
-        elif '10.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 10.0 is supported.')
-        elif '12.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 12.0 is supported.')
-            self.__api.setVersionUrls('12.0')
-        elif '13.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 13.0 is supported.')
-            self.__api.setVersionUrls('13.0')
-        elif '14.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 13.0 is supported.')
-            self.__api.setVersionUrls('13.0')
+    
+        # Geef voorkeur aan de hoogste versie die we kennen
+        preferred = None
+        for version in ['14.0', '13.0', '12.0', '10.0', '9.0', '8.0']:
+            if version in rest_versions:
+                preferred = version
+                break
+    
+        if preferred is not None:
+            _LOGGER.info(f'Visonics Rest API version {preferred} is supported.')
+            self.__api.setVersionUrls(preferred)
         else:
-            raise Exception(f'Visonics Rest API versions 8.0, 9.0, 10.0, 12.0 , 13.0 or 14.0 are not supported by server. Supported versions: {", ".join(rest_versions)}')
-
-
-        # Try to login and get a user token.
+            raise Exception(
+                'Visonics Rest API versions 8.0, 9.0, 10.0, 12.0, 13.0 or 14.0 are not supported by server. '
+                f'Supported versions: {", ".join(rest_versions)}'
+            )
+    
+        # Login & panel login blijven gewoon hetzelfde
         self.__api.login()
         logging.debug('Login successful')
-
-        # Try to panel login and get a session token.
-        # This will raise an exception on failure.
+    
         self.__api.panel_login()
         logging.debug('Panel Login successful')
-
-        # Get general panel information
+    
         gpi = self.__api.get_panel_info()
         self.__system_serial = gpi['serial']
         self.__system_model = gpi['model']
-
         self.update_status()
+
 
     def get_events(self):
         """ Get the list of events. """
