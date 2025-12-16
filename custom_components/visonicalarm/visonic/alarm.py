@@ -219,11 +219,11 @@ class System(object):
         return self.__system_devices
 
     def get_device_by_id(self, id):
-    """ Get a device by its ID. """
-    for device in self.__system_devices:
-        if device.id == id:
-            return device
-    return None
+        """ Get a device by its ID. """
+        for device in self.__system_devices:
+            if device.id == id:
+                return device
+        return None
 
     def get_process_status(self, token):
         """ get process status from the alarm system """
