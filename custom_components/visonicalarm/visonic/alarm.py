@@ -219,43 +219,43 @@ class System(object):
         return self.__system_devices
 
     def get_device_by_id(self, id):
-        """ Get a device by its ID. """
-        for device in self.__system_devices:
-            if device.id == id:
-                return device
-        return None
+    """ Get a device by its ID. """
+    for device in self.__system_devices:
+        if device.id == id:
+            return device
+    return None
 
     def get_process_status(self, token):
         """ get process status from the alarm system """
         return self.__api.get_process_status(token)
-
+    
     def disarm(self):
         """ Send Disarm command to the alarm system. """
         return self.__api.disarm(self.__api.partition)
-
+    
     def arm_home(self):
         """ Send Arm Home command to the alarm system. """
         return self.__api.arm_home(self.__api.partition)
-
+    
     def arm_away(self):
         """ Send Arm Away command to the alarm system. """
         return self.__api.arm_away(self.__api.partition)
-
+    
     def connect(self):
-    """ Connect to the alarm system and get the static system info. """
-
-    _LOGGER.warning("USING PATCHED visonicalarm library, API v14 enabled")
-
-    rest_versions = self.__api.get_version_info().get('rest_versions', [])
-
-    if '14.0' in rest_versions:
-        _LOGGER.info('Visonics Rest API version 14.0 detected, using it.')
-        self.__api.setVersionUrls('14.0')
-    else:
-        raise Exception(
-            f'Visonics Rest API version 14.0 is required but not supported by server. Supported versions: {", ".join(rest_versions)}'
-        )
-
+        """ Connect to the alarm system and get the static system info. """
+        
+        _LOGGER.warning("USING PATCHED visonicalarm library, API v14 enabled")
+    
+        rest_versions = self.__api.get_version_info().get('rest_versions', [])
+    
+        if '14.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 14.0 detected, using it.')
+            self.__api.setVersionUrls('14.0')
+        else:
+            raise Exception(
+                f'Visonics Rest API version 14.0 is required but not supported by server. Supported versions: {", ".join(rest_versions)}'
+            )
+    
 
 
 
