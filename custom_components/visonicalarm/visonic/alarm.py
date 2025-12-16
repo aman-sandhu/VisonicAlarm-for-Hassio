@@ -12,9 +12,6 @@ from threading import Event
 
 _LOGGER = logging.getLogger(__name__)
 
-# <<< ADD THIS LINE
-_LOGGER.warning("USING PATCHED visonicalarm library, API v14 enabled")
-
 class Device(object):
     """ Base class definition of a device in the alarm system. """
 
@@ -228,35 +225,44 @@ class System(object):
     def get_process_status(self, token):
         """ get process status from the alarm system """
         return self.__api.get_process_status(token)
-    
+
     def disarm(self):
         """ Send Disarm command to the alarm system. """
         return self.__api.disarm(self.__api.partition)
-    
+
     def arm_home(self):
         """ Send Arm Home command to the alarm system. """
         return self.__api.arm_home(self.__api.partition)
-    
+
     def arm_away(self):
         """ Send Arm Away command to the alarm system. """
         return self.__api.arm_away(self.__api.partition)
-    
+
     def connect(self):
         """ Connect to the alarm system and get the static system info. """
-        
-        _LOGGER.warning("USING PATCHED visonicalarm library, API v14 enabled")
-    
-        rest_versions = self.__api.get_version_info().get('rest_versions', [])
-    
-        if '14.0' in rest_versions:
-            _LOGGER.info('Visonics Rest API version 14.0 detected, using it.')
-            self.__api.setVersionUrls('14.0')
-        else:
-            raise Exception(
-                f'Visonics Rest API version 14.0 is required but not supported by server. Supported versions: {", ".join(rest_versions)}'
-            )
-    
 
+        # Check that the server support API version 4.0 or 8.0.
+        rest_versions = self.__api.get_version_info()['rest_versions']
+
+        if '8.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 8.0 is supported.')
+            self.__api.setVersionUrls('8.0')
+        elif '9.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 9.0 is supported.')
+            self.__api.setVersionUrls('9.0')
+        elif '10.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 10.0 is supported.')
+        elif '12.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 12.0 is supported.')
+            self.__api.setVersionUrls('12.0')
+        elif '13.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 13.0 is supported.')
+            self.__api.setVersionUrls('13.0')
+        elif '14.0' in rest_versions:
+            _LOGGER.info('Visonics Rest API version 13.0 is supported.')
+            self.__api.setVersionUrls('13.0')
+        else:
+            raise Exception(f'Visonics Rest API versions 8.0, 9.0, 10.0, 12.0 , 13.0 or 14.0 are not supported by server. Supported versions: {", ".join(rest_versions)}')
 
 
         # Try to login and get a user token.
