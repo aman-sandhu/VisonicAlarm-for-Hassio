@@ -94,8 +94,6 @@ class VisonicAlarm(alarm.AlarmControlPanelEntity):
             ATTR_SYSTEM_MODEL: hub.alarm.model,
             ATTR_SYSTEM_READY: hub.alarm.ready,
             ATTR_SYSTEM_CONNECTED: hub.alarm.connected,
-            ATTR_SYSTEM_SESSION_TOKEN: hub.alarm.session_token,
-            ATTR_SYSTEM_LAST_UPDATE: hub.last_update,
             ATTR_CODE_FORMAT: self.code_format,
             ATTR_CHANGED_BY: self.changed_by,
             ATTR_CHANGED_TIMESTAMP: self._changed_timestamp,
