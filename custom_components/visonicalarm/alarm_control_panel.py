@@ -62,12 +62,19 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         if entity_id == "alarm_control_panel.visonic_alarm" and old_state.state != new_state.state:
             state = new_state.state
             if state in ("armed_home", "armed_away", "disarmed"):
-                last_event = hub.alarm.get_last_event(
-                    timestamp_hour_offset=visonic_alarm.event_hour_offset
-                )
-                visonic_alarm.update_last_event(
-                    last_event["user"], last_event["timestamp"]
-                )
+                # Best-effort "changed by" attribution. The cloud can return an
+                # empty event list (no recent events), which used to crash with
+                # IndexError; guard it so it can never break the listener.
+                try:
+                    last_event = hub.alarm.get_last_event(
+                        timestamp_hour_offset=visonic_alarm.event_hour_offset
+                    )
+                    if last_event:
+                        visonic_alarm.update_last_event(
+                            last_event.get("user"), last_event.get("timestamp")
+                        )
+                except Exception as err:  # noqa: BLE001 - non-critical attribution
+                    _LOGGER.debug("Visonic: no event to attribute yet (%s)", err)
     hass.bus.listen(EVENT_STATE_CHANGED, arm_event_listener)
 class VisonicAlarm(alarm.AlarmControlPanelEntity):
     """Representation of a Visonic Alarm control panel."""
