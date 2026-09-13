@@ -25,6 +25,7 @@ from . import (
     DOMAIN,
     VisonicAlarmHub,
 )
+from .options_flow import VisonicOptionsFlow
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,6 +68,11 @@ class VisonicConfigFlow(
     """Handle a config flow for Visonic Alarm."""
 
     VERSION = 1
+
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        """Return the Visonic Alarm options flow."""
+        return VisonicOptionsFlow()
 
     async def async_step_user(
         self,
