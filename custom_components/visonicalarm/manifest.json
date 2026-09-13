@@ -1,7 +1,7 @@
 {
   "domain": "visonicalarm",
   "name": "Visonic Alarm",
-  "documentation": "https://github.com/aman-sandhu/visonicalarm",
+  "documentation": "https://github.com/aman-sandhu/VisonicAlarm-for-Hassio",
   "version": "v2025.11.2-beta.2",
   "requirements": [
     "visonicalarm2==3.3.1",
