@@ -46,7 +46,7 @@ PLATFORMS = [
     "alarm_control_panel",
 ]
 
-# Keep this global for compatibility with the existing platform code.
+# Keep this global for compatibility with older code.
 HUB = None
 
 
@@ -187,8 +187,16 @@ async def async_setup_entry(
 
     from .visonic import alarm as visonicalarm
 
+    # Start with the original config-entry data.
+    # Then allow anything saved in Configure / Options
+    # to override those values.
+    config = {
+        **entry.data,
+        **entry.options,
+    }
+
     hub = VisonicAlarmHub(
-        entry.data,
+        config,
         visonicalarm,
     )
 
@@ -218,8 +226,16 @@ async def async_setup_entry(
 
     hass.data[DOMAIN][entry.entry_id] = hub
 
-    # Temporary compatibility with the existing platform files.
+    # Temporary compatibility with older platform code.
     HUB = hub
+
+    # Reload the integration automatically whenever
+    # its Options / Configure settings are changed.
+    entry.async_on_unload(
+        entry.add_update_listener(
+            async_reload_entry
+        )
+    )
 
     await hass.config_entries.async_forward_entry_setups(
         entry,
@@ -227,6 +243,17 @@ async def async_setup_entry(
     )
 
     return True
+
+
+async def async_reload_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> None:
+    """Reload Visonic Alarm when options are changed."""
+
+    await hass.config_entries.async_reload(
+        entry.entry_id
+    )
 
 
 async def async_unload_entry(
