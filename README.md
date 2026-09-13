@@ -2,20 +2,29 @@
 
 [![HACS](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
+<a href="https://www.buymeacoffee.com/4nd3rs" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/default-black.png"
+       width="150px"
+       height="35px"
+       alt="Buy Me A Coffee">
+</a>
+
 Home Assistant custom integration for Visonic/Bentel/Tyco alarm systems using the Tyco Monitor API.
 
 ## Credits
 
 A big thank you to **And3rsL**, the original author of this Home Assistant integration and the VisonicAlarm2 Python library.
 
-This project is based on his original **VisonicAlarm** work. The core Visonic/Tyco API implementation and the foundation of this integration are his work.
+This project is based on his original **VisonicAlarm-for-Hassio** work. The core Visonic/Tyco API implementation and the foundation of this integration are his work.
 
-This fork builds on that foundation with updated Home Assistant compatibility, GUI/config-entry setup, YAML migration and configuration through the Home Assistant UI.
+This fork builds on that foundation with updated Home Assistant compatibility, GUI/config-entry setup, automatic YAML migration, and configuration through the Home Assistant UI.
 
 Original projects:
 
-- VisonicAlarm-for-Hassio: https://github.com/And3rsL/VisonicAlarm
+- VisonicAlarm-for-Hassio: https://github.com/And3rsL/VisonicAlarm-for-Hassio
 - VisonicAlarm2: https://github.com/And3rsL/VisonicAlarm2
+
+The **Buy Me a Coffee** button above links to And3rsL's support page.
 
 Many thanks to **And3rsL** for creating and sharing the original projects.
 
@@ -113,7 +122,7 @@ Version **v2026.9.1** and later supports Home Assistant config entries and GUI c
 
 When Home Assistant starts with an existing `visonicalarm:` YAML configuration, the integration automatically imports those settings into a Home Assistant config entry.
 
-After the import, check:
+After the import, go to:
 
 **Settings → Devices & services → Visonic Alarm**
 
@@ -200,7 +209,7 @@ This integration is not an official Visonic/Bentel/Tyco product.
 
 ## Python Library
 
-The integration uses the `VisonicAlarm2` Python library originally developed by And3rsL:
+The integration uses the **VisonicAlarm2** Python library originally developed by **And3rsL**:
 
 https://github.com/And3rsL/VisonicAlarm2
 
