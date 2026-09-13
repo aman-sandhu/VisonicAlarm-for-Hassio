@@ -4,6 +4,21 @@
 
 Home Assistant custom integration for Visonic/Bentel/Tyco alarm systems using the Tyco Monitor API.
 
+## Credits
+
+A big thank you to **And3rsL**, the original author of this Home Assistant integration and the VisonicAlarm2 Python library.
+
+This project is based on his original **VisonicAlarm** work. The core Visonic/Tyco API implementation and the foundation of this integration are his work.
+
+This fork builds on that foundation with updated Home Assistant compatibility, GUI/config-entry setup, YAML migration and configuration through the Home Assistant UI.
+
+Original projects:
+
+- VisonicAlarm-for-Hassio: https://github.com/And3rsL/VisonicAlarm
+- VisonicAlarm2: https://github.com/And3rsL/VisonicAlarm2
+
+Many thanks to **And3rsL** for creating and sharing the original projects.
+
 ## Features
 
 - Home Assistant GUI configuration
