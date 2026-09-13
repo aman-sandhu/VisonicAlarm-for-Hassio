@@ -1,43 +1,210 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
-<br><a href="https://www.buymeacoffee.com/4nd3rs" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" width="150px" height="35px" alt="Buy Me A Coffee" style="height: 35px !important;width: 150px !important;" ></a>
+# Visonic/Bentel/Tyco Alarm for Home Assistant
 
-## Visonic/Bentel/Tyco Alarm Sensor
-This component interfaces with the API server hosted by your home alarm system company.
+[![HACS](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
-It is dependant on the Python module: https://github.com/And3rsL/VisonicAlarm2 which will automatically be installed when running the sensor component. This library has much more functionality than this component utilises, so feel free to check it out of you are into Python 3 programming.
+Home Assistant custom integration for Visonic/Bentel/Tyco alarm systems using the Tyco Monitor API.
 
-This is unsupported by Visonic - they don't publish their REST API. It is also unsupported by me. I accept no liability for your use of the component or library nor for any loss or damage resulting from security breaches at your property.
+## Features
 
-### Introduction
-This component will create one **alarm_control_panel** that let you show the current state of the alarm system and also to arm and disarm the system. It will also create one **sensor** for every door/window contact that let you see if the doors or windows are open or closed.
+- Home Assistant GUI configuration
+- Alarm Control Panel entity
+- Arm Home
+- Arm Away
+- Disarm
+- Door/window contact sensors
+- Motion/curtain sensor support
+- Configuration through Home Assistant
+- Automatic import of existing YAML configuration
+- HACS installation and updates
 
-The Alarm Control Panel will be called **alarm_control_panel.visonic_alarm** and the contact sensors will be called **sensor.visonic_alarm_contact_ID** (where ID is the contact ID in the alarm system).
+The integration polls the alarm API periodically for alarm and device status.
 
-It polls the API server every 10 seconds, which is the same interval as the app does its updates. So there is up to a 10 second delay between updates.
+## Requirements
 
-### Requirements
-The component has only been tested with a Visonic PowerMaster 10 with a PowerLink 3 ethernet module, so it might not work with (but should) other Visonic alarm systems.
+This integration uses the `visonicalarm2` Python library.
 
-### Configuration
-Now to the configuration of Home Assistant.
+It has primarily been tested with a Visonic PowerMaster 10 using a PowerLink 3 Ethernet module.
 
-Open the configuration file (`configuration.yaml`) and use the following code:
+Other compatible Visonic/Bentel/Tyco systems using the same API may also work, but have not necessarily been tested.
+
+The account used with the integration should be the **MASTER USER**, and the alarm panel must already be registered to that account.
+
+## Installation
+
+### HACS
+
+Install **Visonic/Bentel/Tyco Alarm System** through HACS.
+
+After installation, restart Home Assistant.
+
+Then go to:
+
+**Settings → Devices & services → Add Integration**
+
+Search for:
+
+**Visonic Alarm**
+
+Select the integration and enter your alarm details.
+
+## GUI Configuration
+
+The integration can be configured through the Home Assistant user interface.
+
+During initial setup you will be asked for:
+
+- **Host** — your alarm provider API host
+- **App ID** — application UUID used by the Visonic API
+- **User Code** — alarm user code
+- **Email** — account email address
+- **Password** — account password
+- **Panel ID** — alarm panel ID
+- **Partition** — alarm partition
+- **Name** — name used for the integration
+- **No PIN required** — allow alarm commands without entering a PIN
+- **Event hour offset** — optional time adjustment for alarm events
+
+A typical host looks similar to:
+
+```text
+visonic.tycomonitor.com
+```
+
+For systems using the original configuration, the partition is commonly:
+
+```text
+-1
+```
+
+## Existing YAML Users
+
+Older versions of this integration were configured through `configuration.yaml`.
+
+For example:
+
 ```yaml
 visonicalarm:
   host: YOURALARMCOMPANY.tycomonitor.com
   panel_id: 123456
   user_code: 1234
   app_id: 00000000-0000-0000-0000-000000000000
-  user_email: 'example@email.com'
-  user_password: 'yourpassword'
+  user_email: example@email.com
+  user_password: yourpassword
   partition: -1
-  no_pin_required: False
+  no_pin_required: false
 ```
 
-The **host**, **user_code**, **panel_id**, **user_email**, **user_password** are the same you are using when logging in to your system via the Visonic-GO/BW app,
-and **user_id** is just a uniqe id generated from this site: https://www.uuidgenerator.net/ so make sure you replace 00000000-0000-0000-0000-000000000000 with an ID that you generate with that site. There is only support for the -1 partition.
+Version **v2026.9.1** and later supports Home Assistant config entries and GUI configuration.
 
-Please be sure that the user is the MASTER USER and you alredy added your panel in your registered account
+When Home Assistant starts with an existing `visonicalarm:` YAML configuration, the integration automatically imports those settings into a Home Assistant config entry.
 
-### Screenshots ###
-![Alarm Panel dialog](https://github.com/And3rsL/VisonicAlarm-for-Hassio/blob/master/HomeAssistantArmDialog2.png)
+After the import, check:
+
+**Settings → Devices & services → Visonic Alarm**
+
+Confirm that the alarm and sensor entities are present and working correctly.
+
+Once the migration has been confirmed, the old `visonicalarm:` section can be removed from `configuration.yaml`.
+
+Existing Home Assistant entity IDs and history should be preserved during the migration.
+
+## Changing Settings
+
+Go to:
+
+**Settings → Devices & services → Visonic Alarm**
+
+Open the existing Visonic hub and select **Configure**.
+
+The following settings can currently be changed through the Configure screen:
+
+- Partition
+- Name
+- No PIN required
+- Event hour offset
+
+Saving configuration changes automatically reloads the integration.
+
+During the reload, the alarm and sensor entities may briefly show **Unavailable** while the integration reconnects. They should return to their current states once the connection has been restored.
+
+## Entities
+
+The integration creates an `alarm_control_panel` entity representing the alarm system.
+
+It also creates entities for supported alarm devices, including:
+
+- Door/window contacts
+- Motion sensors
+- Curtain sensors
+
+Existing installations should retain their existing Home Assistant entity IDs when migrating from YAML configuration.
+
+## Alarm Controls
+
+The Home Assistant Alarm Control Panel supports:
+
+- **Disarm**
+- **Arm Home**
+- **Arm Away**
+
+Alarm commands are sent to the Visonic API and the alarm state is then refreshed in Home Assistant.
+
+## App ID
+
+The App ID is a UUID used when connecting to the Visonic API.
+
+An example UUID looks like:
+
+```text
+00000000-0000-0000-0000-000000000000
+```
+
+Existing users migrating from YAML should continue using their existing App ID.
+
+## Security
+
+Your Visonic account credentials are stored by Home Assistant as part of the integration configuration.
+
+Do not publish or share your:
+
+- Password
+- User code
+- Panel ID
+- App ID
+- Home Assistant configuration containing these credentials
+
+For legacy YAML configurations, Home Assistant `secrets.yaml` can be used to keep credentials out of `configuration.yaml`.
+
+## Compatibility
+
+This integration communicates with an API used by Visonic/Bentel/Tyco alarm applications.
+
+Visonic does not publish or officially support this REST API. Changes made by Visonic, Tyco, the alarm provider, or the API service may therefore affect the integration.
+
+This integration is not an official Visonic/Bentel/Tyco product.
+
+## Python Library
+
+The integration uses the `VisonicAlarm2` Python library originally developed by And3rsL:
+
+https://github.com/And3rsL/VisonicAlarm2
+
+The required Python package is installed automatically by Home Assistant.
+
+## Disclaimer
+
+This software is provided without warranty.
+
+The integration is not supported or endorsed by Visonic, Bentel, or Tyco.
+
+You are responsible for determining whether this integration is appropriate for use with your alarm system. The developers and contributors accept no liability for loss, damage, security incidents, or other consequences resulting from its use.
+
+## Screenshot
+
+![Alarm Panel dialog](HomeAssistantArmDialog2.png)
+
+## Version
+
+Current stable GUI/config-entry release:
+
+**v2026.9.1**
