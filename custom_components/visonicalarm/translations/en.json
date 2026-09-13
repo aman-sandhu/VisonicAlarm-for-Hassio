@@ -1,0 +1,30 @@
+{
+  "title": "Visonic Alarm",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Visonic Alarm",
+        "description": "Enter your Visonic alarm account and panel details.",
+        "data": {
+          "host": "Host",
+          "app_id": "App ID",
+          "user_code": "User Code",
+          "user_email": "Email",
+          "user_password": "Password",
+          "panel_id": "Panel ID",
+          "partition": "Partition",
+          "name": "Name",
+          "no_pin_required": "No PIN required",
+          "event_hour_offset": "Event hour offset"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Visonic alarm service.",
+      "unknown": "Unexpected error while connecting."
+    },
+    "abort": {
+      "already_configured": "This Visonic alarm is already configured."
+    }
+  }
+}
