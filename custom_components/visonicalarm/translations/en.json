@@ -26,5 +26,19 @@
     "abort": {
       "already_configured": "This Visonic alarm is already configured."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Visonic Alarm",
+        "description": "Change the Visonic Alarm settings.",
+        "data": {
+          "partition": "Partition",
+          "name": "Name",
+          "no_pin_required": "No PIN required",
+          "event_hour_offset": "Event hour offset"
+        }
+      }
+    }
   }
 }
