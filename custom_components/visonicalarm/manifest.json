@@ -2,7 +2,7 @@
   "domain": "visonicalarm",
   "name": "Visonic Alarm",
   "documentation": "https://github.com/aman-sandhu/visonicalarm",
-  "version": "v2025.11.2-beta.1",
+  "version": "v2025.11.2-beta.2",
   "requirements": [
     "visonicalarm2==3.3.1",
     "python-dateutil==2.7.3"
