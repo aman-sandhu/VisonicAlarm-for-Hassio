@@ -4,11 +4,14 @@
   "documentation": "https://github.com/aman-sandhu/VisonicAlarm-for-Hassio",
   "version": "v2026.9.3",
   "requirements": [
-    "visonicalarm2==3.3.1",
+    "visonicalarm2==3.3.6",
     "python-dateutil==2.7.3"
   ],
   "dependencies": [],
-  "codeowners": ["@And3rsL", "@aman-sandhu"],
+  "codeowners": [
+    "@And3rsL",
+    "@aman-sandhu"
+  ],
   "config_flow": true,
   "integration_type": "hub"
 }
