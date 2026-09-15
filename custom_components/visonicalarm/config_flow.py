@@ -10,6 +10,11 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_NAME
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.selector import (
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from . import (
     CONF_APP_ID,
@@ -32,12 +37,26 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): cv.string,
-        vol.Required(CONF_APP_ID): cv.string,
-        vol.Required(CONF_USER_CODE): cv.string,
-        vol.Required(CONF_USER_EMAIL): cv.string,
-        vol.Required(CONF_USER_PASSWORD): cv.string,
-        vol.Required(CONF_PANEL_ID): cv.string,
+        vol.Required(CONF_HOST): TextSelector(),
+        vol.Required(CONF_APP_ID): TextSelector(),
+        vol.Required(CONF_USER_CODE): TextSelector(
+            TextSelectorConfig(
+                type=TextSelectorType.PASSWORD,
+            )
+        ),
+        vol.Required(CONF_USER_EMAIL): TextSelector(
+            TextSelectorConfig(
+                type=TextSelectorType.EMAIL,
+                autocomplete="username",
+            )
+        ),
+        vol.Required(CONF_USER_PASSWORD): TextSelector(
+            TextSelectorConfig(
+                type=TextSelectorType.PASSWORD,
+                autocomplete="current-password",
+            )
+        ),
+        vol.Required(CONF_PANEL_ID): TextSelector(),
         vol.Optional(
             CONF_PARTITION,
             default=DEFAULT_PARTITION,
