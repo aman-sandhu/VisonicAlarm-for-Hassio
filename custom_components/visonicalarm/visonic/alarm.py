@@ -321,12 +321,12 @@ class System(object):
         print(' Connection specific information ')
         print('---------------------------------')
         print('Host:          {0}'.format(self.__api.hostname))
-        print('User Code:     {0}'.format(self.__api.user_code))
-        print('App ID:       {0}'.format(self.__api.app_id))
-        print('Panel ID:      {0}'.format(self.__api.panel_id))
+        print('User Code:     <redacted>')
+        print('App ID:        <redacted>')
+        print('Panel ID:      <redacted>')
         print('Partition:     {0}'.format(self.__api.partition))
-        print('Session-Token: {0}'.format(self.__api.session_token))
-        print('User-Token: {0}'.format(self.__api.user_token))
+        print('Session-Token: <redacted>')
+        print('User-Token:    <redacted>')
         print()
         print('----------------------------')
         print(' General system information ')
@@ -584,7 +584,8 @@ class API(object):
         if with_user_token:
             headers['User-Token'] = self.__user_token
 
-        logging.debug('=== GET REQUEST -> ' + url + " ===")
+        safe_url = url.split('?', 1)[0]
+        logging.debug('=== GET REQUEST -> ' + safe_url + " ===")
         logging.debug('=== END REQUEST ===')
 
         # Perform the request and log an exception
@@ -594,17 +595,21 @@ class API(object):
             response = self.__session.get(url, headers=headers)
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            logging.error(err)
-            logging.error(response.content.decode('utf-8'))
+            logging.error('Visonic API GET request failed: %s', err)
 
         if response.status_code == requests.codes.ok:
             resp = json.loads(response.content.decode('utf-8'))
-            logging.debug(resp)
-
+            logging.debug(
+                'Visonic API GET response received successfully (HTTP %s)',
+                response.status_code,
+            )
             logging.debug('=== END RESPONSE ===')
             return resp
         else:
-            logging.error(response.content.decode('utf-8'))
+            logging.error(
+                'Visonic API GET request returned HTTP %s',
+                response.status_code,
+            )
             logging.debug('=== END RESPONSE ===')
 
     def __send_post_request(self, url, data_json, with_user_token, with_session_token):
@@ -631,7 +636,8 @@ class API(object):
         if with_user_token:
             headers['User-Token'] = self.__user_token
 
-        logging.debug('=== POST REQUEST -> ' + url + " ===")
+        safe_url = url.split('?', 1)[0]
+        logging.debug('=== POST REQUEST -> ' + safe_url + " ===")
         logging.debug('=== END REQUEST ===')
 
         # Perform the request and log an exception
@@ -641,17 +647,22 @@ class API(object):
             response = self.__session.post(url, headers=headers, data=data_json)
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            logging.error(err)
-            logging.error(response.content.decode('utf-8'))
+            logging.error('Visonic API POST request failed: %s', err)
 
         # Check HTTP response code
         if response.status_code == requests.codes.ok:
             resp = json.loads(response.content.decode('utf-8'))
-            logging.debug(resp)
+            logging.debug(
+                'Visonic API POST response received successfully (HTTP %s)',
+                response.status_code,
+            )
             logging.debug('=== END RESPONSE ===')
             return resp
         else:
-            logging.error(response.content.decode('utf-8'))
+            logging.error(
+                'Visonic API POST request returned HTTP %s',
+                response.status_code,
+            )
             logging.debug('=== END RESPONSE ===')
             return None
 
