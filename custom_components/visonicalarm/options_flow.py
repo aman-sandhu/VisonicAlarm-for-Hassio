@@ -8,6 +8,13 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_NAME
+from homeassistant.helpers.selector import (
+    BooleanSelector,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+    TextSelector,
+)
 
 from . import (
     CONF_EVENT_HOUR_OFFSET,
@@ -46,30 +53,34 @@ class VisonicOptionsFlow(config_entries.OptionsFlow):
                         CONF_PARTITION,
                         DEFAULT_PARTITION,
                     ),
-                ): str,
+                ): TextSelector(),
                 vol.Optional(
                     CONF_NAME,
                     default=current.get(
                         CONF_NAME,
                         DEFAULT_NAME,
                     ),
-                ): str,
+                ): TextSelector(),
                 vol.Optional(
                     CONF_NO_PIN_REQUIRED,
                     default=current.get(
                         CONF_NO_PIN_REQUIRED,
                         False,
                     ),
-                ): bool,
+                ): BooleanSelector(),
                 vol.Optional(
                     CONF_EVENT_HOUR_OFFSET,
                     default=current.get(
                         CONF_EVENT_HOUR_OFFSET,
                         0,
                     ),
-                ): vol.All(
-                    vol.Coerce(int),
-                    vol.Range(min=-24, max=24),
+                ): NumberSelector(
+                    NumberSelectorConfig(
+                        min=-24,
+                        max=24,
+                        step=1,
+                        mode=NumberSelectorMode.BOX,
+                    )
                 ),
             }
         )
