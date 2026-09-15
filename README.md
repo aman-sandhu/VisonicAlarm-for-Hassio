@@ -231,4 +231,4 @@ You are responsible for determining whether this integration is appropriate for 
 
 Current stable GUI/config-entry release:
 
-v2026.9.5
+v2026.9.6
