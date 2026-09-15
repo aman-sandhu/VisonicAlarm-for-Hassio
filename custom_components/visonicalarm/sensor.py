@@ -38,6 +38,20 @@ CONTACT_ATTR_SUBTYPE = "subtype"
 
 SCAN_INTERVAL = timedelta(seconds=10)
 
+KNOWN_MOTION_SUBTYPES = {
+    "FLAT_PIR_SMART",
+}
+
+
+def _is_motion_subtype(subtype: str) -> bool:
+    """Return whether a Visonic subtype represents a motion sensor."""
+
+    return (
+        "MOTION" in subtype
+        or "CURTAIN" in subtype
+        or subtype in KNOWN_MOTION_SUBTYPES
+    )
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -63,8 +77,7 @@ async def async_setup_entry(
 
         if (
             "CONTACT" in device.subtype
-            or "MOTION" in device.subtype
-            or "CURTAIN" in device.subtype
+            or _is_motion_subtype(device.subtype)
         ):
             _LOGGER.debug(
                 "New device found [Type:%s] [ID:%s]",
@@ -192,10 +205,7 @@ class VisonicAlarmContact(Entity):
             elif status == "closed":
                 self._state = STATE_CLOSED
 
-            elif (
-                "CURTAIN" in device.subtype
-                or "MOTION" in device.subtype
-            ):
+            elif _is_motion_subtype(device.subtype):
                 alarm_state = self._alarm.state
                 alarm_zone = device.zone or ""
 
