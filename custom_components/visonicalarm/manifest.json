@@ -2,7 +2,7 @@
   "domain": "visonicalarm",
   "name": "Visonic Alarm",
   "documentation": "https://github.com/aman-sandhu/VisonicAlarm-for-Hassio",
-  "version": "v2026.9.4",
+  "version": "v2026.9.5",
   "requirements": [
     "visonicalarm2==3.3.6",
     "python-dateutil==2.7.3"
