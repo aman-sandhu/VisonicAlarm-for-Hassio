@@ -17,7 +17,6 @@ from . import (
     DOMAIN,
 )
 
-
 TO_REDACT = {
     CONF_APP_ID,
     CONF_PANEL_ID,
@@ -36,16 +35,24 @@ async def async_get_config_entry_diagnostics(
     hub = hass.data[DOMAIN][entry.entry_id]
     alarm = hub.alarm
 
+    devices = []
+
+    for index, device in enumerate(alarm.devices, start=1):
+        devices.append(
+            {
+                "index": index,
+                "device_type": device.device_type,
+                "subtype": device.subtype,
+                "zone": device.zone,
+                "partitions": device.partitions,
+                "device_number": device.device_number,
+            }
+        )
+
     return {
         "config_entry": {
-            "data": async_redact_data(
-                dict(entry.data),
-                TO_REDACT,
-            ),
-            "options": async_redact_data(
-                dict(entry.options),
-                TO_REDACT,
-            ),
+            "data": async_redact_data(dict(entry.data), TO_REDACT),
+            "options": async_redact_data(dict(entry.options), TO_REDACT),
         },
         "hub": {
             "last_update": (
@@ -62,4 +69,5 @@ async def async_get_config_entry_diagnostics(
             "connected": alarm.connected,
             "device_count": len(alarm.devices),
         },
+        "devices": devices,
     }
