@@ -4,11 +4,11 @@
     "step": {
       "user": {
         "title": "Set up Visonic Alarm",
-        "description": "Enter your Visonic alarm account and panel details.",
+        "description": "Connect Home Assistant to your Visonic alarm system using the same server and account details used by Visonic Go or ConnectAlarm.",
         "data": {
           "host": "Host",
           "app_id": "App ID",
-          "user_code": "User Code",
+          "user_code": "User code",
           "user_email": "Email",
           "user_password": "Password",
           "panel_id": "Panel ID",
@@ -16,6 +16,18 @@
           "name": "Name",
           "no_pin_required": "No PIN required",
           "event_hour_offset": "Event hour offset"
+        },
+        "data_description": {
+          "host": "PowerManage server address, for example visonic.tycomonitor.com.",
+          "app_id": "Application UUID used when connecting to the Visonic service.",
+          "user_code": "Alarm master user code.",
+          "user_email": "Email address used with Visonic Go or ConnectAlarm.",
+          "user_password": "Password for the Visonic Go or ConnectAlarm account.",
+          "panel_id": "Alarm panel ID registered to the account.",
+          "partition": "Alarm partition. Existing installations commonly use -1 for all partitions.",
+          "name": "Name shown for this alarm system in Home Assistant.",
+          "no_pin_required": "Allow Home Assistant alarm commands without entering a PIN.",
+          "event_hour_offset": "Optional hour adjustment applied to alarm event timestamps."
         }
       }
     },
@@ -37,6 +49,12 @@
           "name": "Name",
           "no_pin_required": "No PIN required",
           "event_hour_offset": "Event hour offset"
+        },
+        "data_description": {
+          "partition": "Alarm partition. Existing installations commonly use -1 for all partitions.",
+          "name": "Name shown for this alarm system in Home Assistant.",
+          "no_pin_required": "Allow Home Assistant alarm commands without entering a PIN.",
+          "event_hour_offset": "Optional hour adjustment applied to alarm event timestamps."
         }
       }
     }
