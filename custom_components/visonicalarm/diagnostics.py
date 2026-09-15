@@ -52,6 +52,5 @@ async def async_get_config_entry_diagnostics(
                 if hub.last_update is not None
                 else None
             ),
-            "connected": hub.alarm is not None,
         },
     }
