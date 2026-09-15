@@ -448,7 +448,11 @@ class System(object):
                             partitions=device['partitions']
                         )
                         self.__system_devices.append(camera_device)
-                    elif 'MOTION' in device['subtype'] or 'CURTAIN' in device['subtype']:
+                    elif (
+                        'MOTION' in device['subtype']
+                        or 'CURTAIN' in device['subtype']
+                        or device['subtype'] == 'FLAT_PIR_SMART'
+                    ):
                         motion_device = MotionDevice(
                             id=device['id'],
                             name=device['name'],
