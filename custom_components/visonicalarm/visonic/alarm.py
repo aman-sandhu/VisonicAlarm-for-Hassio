@@ -585,7 +585,6 @@ class API(object):
             headers['User-Token'] = self.__user_token
 
         logging.debug('=== GET REQUEST -> ' + url + " ===")
-        logging.debug(headers)
         logging.debug('=== END REQUEST ===')
 
         # Perform the request and log an exception
@@ -633,8 +632,6 @@ class API(object):
             headers['User-Token'] = self.__user_token
 
         logging.debug('=== POST REQUEST -> ' + url + " ===")
-        logging.debug(headers)
-        logging.debug(data_json)
         logging.debug('=== END REQUEST ===')
 
         # Perform the request and log an exception
