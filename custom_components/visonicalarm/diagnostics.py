@@ -34,6 +34,7 @@ async def async_get_config_entry_diagnostics(
     """Return diagnostics for a Visonic Alarm config entry."""
 
     hub = hass.data[DOMAIN][entry.entry_id]
+    alarm = hub.alarm
 
     return {
         "config_entry": {
@@ -52,5 +53,13 @@ async def async_get_config_entry_diagnostics(
                 if hub.last_update is not None
                 else None
             ),
+        },
+        "panel": {
+            "model": alarm.model,
+            "ready": alarm.ready,
+            "state": alarm.state,
+            "alarm_active": alarm.alarm,
+            "connected": alarm.connected,
+            "device_count": len(alarm.devices),
         },
     }
