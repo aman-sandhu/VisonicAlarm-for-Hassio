@@ -74,6 +74,19 @@ def _safe_records(
     ]
 
 
+def _record_keys(records: Any) -> list[list[str]]:
+    """Return sorted key names only from API records."""
+
+    if not isinstance(records, list):
+        return []
+
+    return [
+        sorted(record.keys())
+        for record in records
+        if isinstance(record, dict)
+    ]
+
+
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -134,4 +147,5 @@ async def async_get_config_entry_diagnostics(
             raw_devices,
             SAFE_RAW_DEVICE_KEYS,
         ),
+        "raw_device_keys": _record_keys(raw_devices),
     }
