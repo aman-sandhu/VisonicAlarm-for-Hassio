@@ -126,6 +126,38 @@ def _trait_keys(records: Any) -> list[dict[str, Any]]:
     return result
 
 
+def _zone_locations(records: Any) -> list[dict[str, Any]]:
+    """Return zone numbers and friendly locations from device traits."""
+
+    if not isinstance(records, list):
+        return []
+
+    result = []
+
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+
+        if record.get("device_type") != "ZONE":
+            continue
+
+        traits = record.get("traits")
+        location = None
+
+        if isinstance(traits, dict):
+            location = traits.get("location")
+
+        result.append(
+            {
+                "device_number": record.get("device_number"),
+                "device_id": record.get("id"),
+                "location": location,
+            }
+        )
+
+    return result
+
+
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -188,4 +220,5 @@ async def async_get_config_entry_diagnostics(
         ),
         "raw_device_keys": _record_keys(raw_devices),
         "raw_device_trait_keys": _trait_keys(raw_devices),
+        "zone_locations": _zone_locations(raw_devices),
     }
