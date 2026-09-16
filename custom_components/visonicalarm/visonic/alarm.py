@@ -275,6 +275,14 @@ class System(object):
         """ Get the list of events. """
         return self.__api.get_events()
 
+    def get_alarms(self):
+        """Get the current alarm records."""
+        return self.__api.get_alarms()
+    
+    def get_troubles(self):
+        """Get the current trouble records."""
+        return self.__api.get_troubles()
+
     def get_last_event(self, timestamp_hour_offset=0):
         """ Get the last event. """
 
