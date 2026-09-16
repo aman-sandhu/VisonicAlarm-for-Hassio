@@ -17,7 +17,7 @@ A big thank you to **And3rsL**, the original author of this Home Assistant integ
 
 This project is based on his original **VisonicAlarm-for-Hassio** work. The core Visonic/Tyco API implementation and the foundation of this integration are his work.
 
-This fork builds on that foundation with updated Home Assistant compatibility, GUI/config-entry setup, automatic YAML migration, and configuration through the Home Assistant UI.
+This fork builds on that foundation with updated Home Assistant compatibility, GUI/config-entry setup, automatic YAML migration, configuration through the Home Assistant UI, improved device support, diagnostics, and additional alarm/event handling.
 
 Original projects:
 
@@ -28,6 +28,8 @@ The **Buy Me a Coffee** button above links to And3rsL's support page.
 
 Many thanks to **And3rsL** for creating and sharing the original projects.
 
+Additional thanks to the Visonic Home Assistant community, including **davesmeghead/visonic** and **msp1974/VisonicAlarm-for-Hassio**, whose public work has provided useful ideas and reference points while this fork continues to evolve.
+
 ## Features
 
 - Home Assistant GUI configuration
@@ -37,8 +39,13 @@ Many thanks to **And3rsL** for creating and sharing the original projects.
 - Disarm
 - Door/window contact sensors
 - Motion/curtain sensor support
+- MP-802 / `FLAT_PIR_SMART` motion sensor support
+- Friendly zone/device names from panel locations
+- Home Assistant device registry grouping
+- Last Alarm Trigger sensor
 - Configuration through Home Assistant
 - Automatic import of existing YAML configuration
+- Diagnostics support
 - HACS installation and updates
 
 The integration polls the alarm API periodically for alarm and device status.
@@ -47,7 +54,10 @@ The integration polls the alarm API periodically for alarm and device status.
 
 This integration uses the `visonicalarm2` Python library.
 
-It has primarily been tested with a Visonic PowerMaster 10 using a PowerLink 3 Ethernet module.
+It has been tested with Visonic PowerMaster systems including:
+
+- PowerMaster 10 using a PowerLink 3 Ethernet module
+- PowerMaster-33E using the Visonic/Tyco cloud connection
 
 Other compatible Visonic/Bentel/Tyco systems using the same API may also work, but have not necessarily been tested.
 
@@ -161,7 +171,35 @@ It also creates entities for supported alarm devices, including:
 - Motion sensors
 - Curtain sensors
 
+Supported zone entities use the friendly location names reported by the panel where available, for example:
+
+```text
+Kitchen Motion
+Front door Contact
+Upstairs Motion
+```
+
+The alarm control panel and integration-level sensors are grouped under the main **Visonic Alarm** device in Home Assistant. Zone sensors are grouped into their own devices.
+
 Existing installations should retain their existing Home Assistant entity IDs when migrating from YAML configuration.
+
+## Last Alarm Trigger
+
+Version **v2026.9.7** adds a **Last Alarm Trigger** sensor.
+
+When the cloud event history reports a burglar alarm caused by a zone, the integration maps the alarm event's zone number back to the matching panel device and friendly location.
+
+For example:
+
+```text
+Last Alarm Trigger: Upstairs
+```
+
+The sensor keeps the most recent alarm-trigger location after the system is disarmed, making it useful for dashboards, notifications, and automations.
+
+The sensor may also expose supporting attributes such as the triggering zone, device ID, event type, description, partition, timestamp, and event ID.
+
+This feature identifies the zone/PIR that caused an actual alarm. It does not currently mean that normal live PIR occupancy/motion events are available from the cloud API while the system is disarmed.
 
 ## Alarm Controls
 
@@ -199,9 +237,11 @@ Do not publish or share your:
 
 For legacy YAML configurations, Home Assistant `secrets.yaml` can be used to keep credentials out of `configuration.yaml`.
 
+Diagnostics redact configured credentials and avoid exposing unnecessary raw API data.
+
 ## Compatibility
 
-This integration communicates with an API used by Visonic/Bentel/Tyco alarm applications.
+This integration communicates with an API used by Visonic/Bentel/Tyco alarm applications, including systems that also work with the ConnectAlarm/Visonic cloud service.
 
 Visonic does not publish or officially support this REST API. Changes made by Visonic, Tyco, the alarm provider, or the API service may therefore affect the integration.
 
@@ -214,6 +254,25 @@ The integration uses the **VisonicAlarm2** Python library originally developed b
 https://github.com/And3rsL/VisonicAlarm2
 
 The required Python package is installed automatically by Home Assistant.
+
+## Release Notes
+
+### v2026.9.7
+
+- Added **Last Alarm Trigger** sensor with friendly zone/location mapping.
+- Added friendly names for supported contact and motion entities.
+- Added Home Assistant device registry grouping for zone devices.
+- Grouped the alarm control panel and Last Alarm Trigger under the main **Visonic Alarm** device.
+- Added manufacturer and panel model metadata to the main device.
+- Recognize confirmed PowerManage burglar alarm events using `type_id: 1`, while retaining `type_id: 2` compatibility.
+- Cleaned up temporary development diagnostics while retaining useful zone/location diagnostics.
+- Preserved existing entity unique IDs and alarm-control behaviour.
+
+### v2026.9.6
+
+- Added support for `FLAT_PIR_SMART` motion sensors, including Visonic MP-802 PG2 PIR devices.
+- Added safe device type/subtype diagnostics to help identify unsupported devices.
+- Fixed motion entity filtering so supported MP-802 sensors are exposed correctly in Home Assistant.
 
 ## Disclaimer
 
@@ -231,4 +290,4 @@ You are responsible for determining whether this integration is appropriate for 
 
 Current stable GUI/config-entry release:
 
-v2026.9.6
+v2026.9.7
