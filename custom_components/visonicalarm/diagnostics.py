@@ -104,6 +104,7 @@ async def async_get_config_entry_diagnostics(
         devices.append(
             {
                 "index": index,
+                "device_id": device.id,
                 "device_type": device.device_type,
                 "subtype": device.subtype,
                 "zone": device.zone,
