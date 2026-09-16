@@ -304,7 +304,7 @@ class System(object):
                 data['action'] = 'ArmHome'
             elif last_event['type_id'] == 86:
                 data['action'] = 'ArmAway'
-            elif last_event['type_id'] == 2:
+            elif last_event['type_id'] in (1, 2):
                 data['action'] = 'Alarm'
             else:
                 data['action'] = 'Unknown type_id: {0}'.format(
