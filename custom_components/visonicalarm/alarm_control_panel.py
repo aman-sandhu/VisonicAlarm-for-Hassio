@@ -19,6 +19,7 @@ from homeassistant.const import (
     STATE_UNKNOWN,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 
 from . import (
     DOMAIN,
@@ -64,6 +65,7 @@ async def async_setup_entry(
     visonic_alarm = VisonicAlarm(
         hass,
         hub,
+        entry.entry_id,
     )
 
     async_add_entities(
@@ -133,11 +135,18 @@ class VisonicAlarm(AlarmControlPanelEntity):
         self,
         hass: HomeAssistant,
         hub,
+        entry_id: str,
     ):
         """Initialize the alarm entity."""
 
         self._hass = hass
         self._hub = hub
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry_id)},
+            name="Visonic Alarm",
+            manufacturer="Visonic",
+            model=hub.alarm.model,
+        )
 
         # Modern Home Assistant alarm entity state.
         # Do not write directly to self._state.
