@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     STATE_CLOSED,
@@ -36,6 +37,10 @@ CONTACT_ATTR_NAME = "name"
 CONTACT_ATTR_DEVICE_TYPE = "device_type"
 CONTACT_ATTR_SUBTYPE = "subtype"
 
+LAST_ALARM_TRIGGER_NAME = "Visonic Alarm Last Alarm Trigger"
+LAST_ALARM_TRIGGER_ICON = "mdi:alarm-light"
+LAST_ALARM_TRIGGER_UNIQUE_ID_SUFFIX = "last_alarm_trigger"
+
 SCAN_INTERVAL = timedelta(seconds=10)
 
 KNOWN_MOTION_SUBTYPES = {
@@ -53,6 +58,46 @@ def _is_motion_subtype(subtype: str) -> bool:
     )
 
 
+def _build_zone_device_map(raw_devices) -> dict[int, dict]:
+    """Build a mapping of panel zone numbers to Visonic zone metadata."""
+
+    zone_devices = {}
+
+    if not isinstance(raw_devices, list):
+        return zone_devices
+
+    for record in raw_devices:
+        if not isinstance(record, dict):
+            continue
+
+        if record.get("device_type") != "ZONE":
+            continue
+
+        device_number = record.get("device_number")
+
+        try:
+            zone_number = int(device_number)
+        except (TypeError, ValueError):
+            continue
+
+        traits = record.get("traits")
+        location = None
+
+        if isinstance(traits, dict):
+            location_record = traits.get("location")
+            if isinstance(location_record, dict):
+                location = location_record.get("name")
+            elif isinstance(location_record, str):
+                location = location_record
+
+        zone_devices[zone_number] = {
+            "device_id": record.get("id"),
+            "location": location,
+        }
+
+    return zone_devices
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -65,6 +110,18 @@ async def async_setup_entry(
     await hass.async_add_executor_job(
         hub.update
     )
+
+    try:
+        raw_devices = await hass.async_add_executor_job(
+            hub.alarm.get_raw_devices
+        )
+        zone_device_map = _build_zone_device_map(raw_devices)
+    except Exception as error:  # noqa: BLE001
+        _LOGGER.warning(
+            "Could not load Visonic zone location mapping: %s",
+            error,
+        )
+        zone_device_map = {}
 
     entities = []
 
@@ -92,10 +149,100 @@ async def async_setup_entry(
                 )
             )
 
+    entities.append(
+        VisonicLastAlarmTrigger(
+            hub,
+            entry.entry_id,
+            zone_device_map,
+        )
+    )
+
     async_add_entities(
         entities,
         True,
     )
+
+
+class VisonicLastAlarmTrigger(SensorEntity):
+    """Representation of the most recent Visonic zone alarm trigger."""
+
+    _attr_icon = LAST_ALARM_TRIGGER_ICON
+    _attr_name = LAST_ALARM_TRIGGER_NAME
+
+    def __init__(
+        self,
+        hub,
+        entry_id: str,
+        zone_device_map: dict[int, dict],
+    ):
+        """Initialize the last alarm trigger sensor."""
+
+        self._hub = hub
+        self._alarm = hub.alarm
+        self._zone_device_map = zone_device_map
+        self._attr_unique_id = (
+            f"{entry_id}_{LAST_ALARM_TRIGGER_UNIQUE_ID_SUFFIX}"
+        )
+        self._attr_native_value = None
+        self._attr_extra_state_attributes = {}
+
+    def update(self):
+        """Update the most recent alarm-trigger information."""
+
+        events = self._alarm.get_events()
+
+        if not isinstance(events, list):
+            return
+
+        alarm_event = None
+
+        for event in reversed(events):
+            if not isinstance(event, dict):
+                continue
+
+            if event.get("device_type") != "ZONE":
+                continue
+
+            if (
+                event.get("type_id") == 1
+                or event.get("label") == "BURGLER"
+            ):
+                alarm_event = event
+                break
+
+        if alarm_event is None:
+            return
+
+        zone = alarm_event.get("zone")
+
+        try:
+            zone_number = int(zone)
+        except (TypeError, ValueError):
+            return
+
+        zone_device = self._zone_device_map.get(
+            zone_number,
+            {},
+        )
+
+        location = zone_device.get("location")
+        self._attr_native_value = location or f"Zone {zone_number}"
+
+        partitions = alarm_event.get("partitions")
+        partition = None
+
+        if isinstance(partitions, list) and partitions:
+            partition = partitions[0]
+
+        self._attr_extra_state_attributes = {
+            "zone": zone_number,
+            "device_id": zone_device.get("device_id"),
+            "event_type": alarm_event.get("label"),
+            "description": alarm_event.get("description"),
+            "partition": partition,
+            "timestamp": alarm_event.get("datetime"),
+            "event_id": alarm_event.get("event"),
+        }
 
 
 class VisonicAlarmContact(Entity):
