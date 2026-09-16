@@ -279,6 +279,10 @@ class System(object):
         """Get location records from the API."""
         return self.__api.get_locations()
 
+    def get_raw_devices(self):
+        """Return raw device data from the API."""
+        return self.__api.get_all_devices()
+
     def get_last_event(self, timestamp_hour_offset=0):
         """ Get the last event. """
 
