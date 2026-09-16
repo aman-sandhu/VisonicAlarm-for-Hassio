@@ -278,10 +278,14 @@ class System(object):
     def get_alarms(self):
         """Get the current alarm records."""
         return self.__api.get_alarms()
-    
+
     def get_troubles(self):
         """Get the current trouble records."""
         return self.__api.get_troubles()
+
+    def get_raw_devices(self):
+        """Return raw device data from the API."""
+        return self.__api.get_all_devices()
 
     def get_last_event(self, timestamp_hour_offset=0):
         """ Get the last event. """
