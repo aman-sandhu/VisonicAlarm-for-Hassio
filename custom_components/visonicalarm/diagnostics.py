@@ -87,6 +87,45 @@ def _record_keys(records: Any) -> list[list[str]]:
     ]
 
 
+def _trait_keys(records: Any) -> list[dict[str, Any]]:
+    """Return device numbers and nested trait key names only."""
+
+    if not isinstance(records, list):
+        return []
+
+    result = []
+
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+
+        traits = record.get("traits")
+
+        if isinstance(traits, dict):
+            keys = sorted(traits.keys())
+        elif isinstance(traits, list):
+            keys = sorted(
+                {
+                    key
+                    for item in traits
+                    if isinstance(item, dict)
+                    for key in item.keys()
+                }
+            )
+        else:
+            keys = []
+
+        result.append(
+            {
+                "device_number": record.get("device_number"),
+                "device_type": record.get("device_type"),
+                "trait_keys": keys,
+            }
+        )
+
+    return result
+
+
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -148,4 +187,5 @@ async def async_get_config_entry_diagnostics(
             SAFE_RAW_DEVICE_KEYS,
         ),
         "raw_device_keys": _record_keys(raw_devices),
+        "raw_device_trait_keys": _trait_keys(raw_devices),
     }
