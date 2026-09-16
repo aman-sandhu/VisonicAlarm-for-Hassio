@@ -71,6 +71,17 @@ SAFE_RAW_DEVICE_KEYS = {
     "partitions",
 }
 
+SAFE_LOCATION_KEYS = {
+    "id",
+    "name",
+    "zone",
+    "zone_id",
+    "zone_number",
+    "device_number",
+    "location",
+    "location_id",
+}
+
 
 def _safe_records(
     records: Any,
@@ -142,6 +153,10 @@ async def async_get_config_entry_diagnostics(
         alarm.get_raw_devices
     )
 
+    locations = await hass.async_add_executor_job(
+        alarm.get_locations
+    )
+
     return {
         "config_entry": {
             "data": async_redact_data(
@@ -185,5 +200,9 @@ async def async_get_config_entry_diagnostics(
         "raw_devices": _safe_records(
             raw_devices,
             SAFE_RAW_DEVICE_KEYS,
+        ),
+        "locations": _safe_records(
+            locations,
+            SAFE_LOCATION_KEYS,
         ),
     }
