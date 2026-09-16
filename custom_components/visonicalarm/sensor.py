@@ -116,12 +116,18 @@ async def async_setup_entry(
             hub.alarm.get_raw_devices
         )
         zone_device_map = _build_zone_device_map(raw_devices)
+        device_location_map = {
+            data.get("device_id"): data.get("location")
+            for data in zone_device_map.values()
+            if data.get("device_id") is not None
+        }
     except Exception as error:  # noqa: BLE001
         _LOGGER.warning(
             "Could not load Visonic zone location mapping: %s",
             error,
         )
         zone_device_map = {}
+        device_location_map = {}
 
     entities = []
 
@@ -146,6 +152,7 @@ async def async_setup_entry(
                 VisonicAlarmContact(
                     hub,
                     device.id,
+                    device_location_map.get(device.id),
                 )
             )
 
@@ -252,6 +259,7 @@ class VisonicAlarmContact(Entity):
         self,
         hub,
         contact_id,
+        location=None,
     ):
         """Initialize the sensor."""
 
@@ -259,6 +267,7 @@ class VisonicAlarmContact(Entity):
         self._state = STATE_UNKNOWN
         self._alarm = hub.alarm
         self._id = contact_id
+        self._location = location
         self._name = None
         self._zone = None
         self._device_type = None
@@ -384,7 +393,21 @@ class VisonicAlarmContact(Entity):
                 self._state = STATE_UNKNOWN
 
             self._zone = device.zone
-            self._name = device.name
+
+            if "CONTACT" in device.subtype:
+                sensor_type = "Contact"
+            elif _is_motion_subtype(device.subtype):
+                sensor_type = "Motion"
+            else:
+                sensor_type = "Sensor"
+
+            if self._location:
+                self._name = f"{self._location} {sensor_type}"
+            elif device.name:
+                self._name = device.name
+            else:
+                self._name = f"Visonic Alarm {self._id}"
+
             self._device_type = device.device_type
             self._subtype = device.subtype
 
