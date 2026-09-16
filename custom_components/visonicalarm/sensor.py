@@ -15,7 +15,7 @@ from homeassistant.const import (
     STATE_UNKNOWN,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import DeviceInfo, Entity
 
 from . import DOMAIN
 
@@ -40,6 +40,8 @@ CONTACT_ATTR_SUBTYPE = "subtype"
 LAST_ALARM_TRIGGER_NAME = "Visonic Alarm Last Alarm Trigger"
 LAST_ALARM_TRIGGER_ICON = "mdi:alarm-light"
 LAST_ALARM_TRIGGER_UNIQUE_ID_SUFFIX = "last_alarm_trigger"
+
+VISONIC_MANUFACTURER = "Visonic"
 
 SCAN_INTERVAL = timedelta(seconds=10)
 
@@ -153,6 +155,7 @@ async def async_setup_entry(
                     hub,
                     device.id,
                     device_location_map.get(device.id),
+                    device.subtype,
                 )
             )
 
@@ -189,6 +192,11 @@ class VisonicLastAlarmTrigger(SensorEntity):
         self._zone_device_map = zone_device_map
         self._attr_unique_id = (
             f"{entry_id}_{LAST_ALARM_TRIGGER_UNIQUE_ID_SUFFIX}"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry_id)},
+            name="Visonic Alarm",
+            manufacturer=VISONIC_MANUFACTURER,
         )
         self._attr_native_value = None
         self._attr_extra_state_attributes = {}
@@ -260,6 +268,7 @@ class VisonicAlarmContact(Entity):
         hub,
         contact_id,
         location=None,
+        subtype=None,
     ):
         """Initialize the sensor."""
 
@@ -268,7 +277,25 @@ class VisonicAlarmContact(Entity):
         self._alarm = hub.alarm
         self._id = contact_id
         self._location = location
+        self._subtype_hint = subtype
         self._name = None
+
+        if location:
+            if subtype and "CONTACT" in subtype:
+                device_name = f"{location} Contact"
+            elif subtype and _is_motion_subtype(subtype):
+                device_name = f"{location} Motion"
+            else:
+                device_name = location
+        else:
+            device_name = f"Visonic Device {contact_id}"
+
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, str(contact_id))},
+            name=device_name,
+            manufacturer=VISONIC_MANUFACTURER,
+            model=subtype,
+        )
         self._zone = None
         self._device_type = None
         self._subtype = None
