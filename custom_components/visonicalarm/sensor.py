@@ -41,6 +41,10 @@ LAST_ALARM_TRIGGER_NAME = "Visonic Alarm Last Alarm Trigger"
 LAST_ALARM_TRIGGER_ICON = "mdi:alarm-light"
 LAST_ALARM_TRIGGER_UNIQUE_ID_SUFFIX = "last_alarm_trigger"
 
+TROUBLE_NAME = "Visonic Alarm Trouble"
+TROUBLE_ICON = "mdi:alert-circle"
+TROUBLE_UNIQUE_ID_SUFFIX = "trouble"
+
 VISONIC_MANUFACTURER = "Visonic"
 
 SCAN_INTERVAL = timedelta(seconds=10)
@@ -167,6 +171,13 @@ async def async_setup_entry(
         )
     )
 
+    entities.append(
+        VisonicTroubleSensor(
+            hub,
+            entry.entry_id,
+        )
+    )
+
     async_add_entities(
         entities,
         True,
@@ -257,6 +268,95 @@ class VisonicLastAlarmTrigger(SensorEntity):
             "partition": partition,
             "timestamp": alarm_event.get("datetime"),
             "event_id": alarm_event.get("event"),
+        }
+
+
+class VisonicTroubleSensor(SensorEntity):
+    """Representation of current Visonic system troubles."""
+
+    _attr_icon = TROUBLE_ICON
+    _attr_name = TROUBLE_NAME
+
+    def __init__(
+        self,
+        hub,
+        entry_id: str,
+    ):
+        """Initialize the trouble sensor."""
+
+        self._hub = hub
+        self._alarm = hub.alarm
+        self._attr_unique_id = (
+            f"{entry_id}_{TROUBLE_UNIQUE_ID_SUFFIX}"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry_id)},
+            name="Visonic Alarm",
+            manufacturer=VISONIC_MANUFACTURER,
+        )
+        self._attr_native_value = "OK"
+        self._attr_extra_state_attributes = {
+            "count": 0,
+        }
+
+    def update(self):
+        """Update current Visonic trouble information."""
+
+        self._hub.update()
+
+        troubles = self._alarm.troubles
+
+        if not isinstance(troubles, list) or not troubles:
+            self._attr_native_value = "OK"
+            self._attr_extra_state_attributes = {
+                "count": 0,
+            }
+            return
+
+        valid_troubles = [
+            trouble
+            for trouble in troubles
+            if isinstance(trouble, dict)
+        ]
+
+        if not valid_troubles:
+            self._attr_native_value = "OK"
+            self._attr_extra_state_attributes = {
+                "count": 0,
+            }
+            return
+
+        first = valid_troubles[0]
+        trouble_type = first.get("trouble_type") or "TROUBLE"
+
+        friendly_type = (
+            str(trouble_type)
+            .replace("_", " ")
+            .title()
+        )
+
+        if len(valid_troubles) == 1:
+            self._attr_native_value = friendly_type
+        else:
+            self._attr_native_value = (
+                f"{len(valid_troubles)} Troubles"
+            )
+
+        partitions = first.get("partitions")
+        partition = None
+
+        if isinstance(partitions, list) and partitions:
+            partition = partitions[0]
+
+        self._attr_extra_state_attributes = {
+            "count": len(valid_troubles),
+            "location": first.get("location"),
+            "zone": first.get("zone"),
+            "zone_type": first.get("zone_type"),
+            "device_type": first.get("device_type"),
+            "trouble_type": trouble_type,
+            "partition": partition,
+            "troubles": valid_troubles,
         }
 
 

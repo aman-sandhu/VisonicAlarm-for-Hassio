@@ -139,6 +139,7 @@ class VisonicAlarmHub(Entity):
                 self.alarm.connect()
 
             self.alarm.update_status()
+            self.alarm.update_troubles()
             self.alarm.update_devices()
 
             self._last_update = datetime.now()

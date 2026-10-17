@@ -215,6 +215,11 @@ class System(object):
         """ A list of devices connected to the alarm system and their state. """
         return self.__system_devices
 
+    @property
+    def troubles(self):
+        """Current system troubles."""
+        return self.__system_troubles
+
     def get_device_by_id(self, id):
         """ Get a device by its ID. """
         for device in self.__system_devices:
