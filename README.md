@@ -43,6 +43,7 @@ Additional thanks to the Visonic Home Assistant community, including **davesmegh
 - Friendly zone/device names from panel locations
 - Home Assistant device registry grouping
 - Last Alarm Trigger sensor
+- Visonic Trouble sensor for low battery and other panel trouble conditions
 - Configuration through Home Assistant
 - Automatic import of existing YAML configuration
 - Diagnostics support
@@ -257,6 +258,15 @@ The required Python package is installed automatically by Home Assistant.
 
 ## Release Notes
 
+### v2026.10.0
+
+- Added **Visonic Alarm Trouble** sensor.
+- Added support for panel trouble conditions reported by the Visonic cloud API.
+- Low-battery troubles now expose the affected location, zone, zone type, device type, partition, and trouble type.
+- Multiple simultaneous troubles are exposed through sensor attributes.
+- Trouble data is refreshed during the normal integration update cycle.
+- Confirmed working with a real `LOW_BATTERY` condition on Family room / Zone 4.
+
 ### v2026.9.7
 
 - Added **Last Alarm Trigger** sensor with friendly zone/location mapping.
@@ -290,4 +300,4 @@ You are responsible for determining whether this integration is appropriate for 
 
 Current stable GUI/config-entry release:
 
-v2026.9.7
+v2026.10.0
