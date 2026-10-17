@@ -1,16 +1,17 @@
-# Changelog
+## v2026.10.0 - 2026-10-17
 
-## v2026.9.4 - 2026-09-14
+### Added
+- Added a new **Visonic Alarm Trouble** sensor.
+- Added support for current panel trouble conditions reported by the Visonic cloud API.
+- Low-battery troubles now show the affected location, zone, zone type, device type, partition, and raw trouble details as sensor attributes.
+- Multiple simultaneous troubles are supported through the sensor attributes.
 
 ### Changed
-- Migrated the alarm control panel to Home Assistant's modern `AlarmControlPanelState` API.
-- Updated `visonicalarm2` from `3.3.1` to `3.3.6`.
-
-### Compatibility
-- Improved compatibility with current Home Assistant alarm control panel state handling.
+- The integration now refreshes panel trouble information during the normal hub update cycle.
+- Added a public `troubles` property to the Visonic system wrapper.
 
 ### Tested
-- Home Assistant configuration check passed.
-- Integration loaded successfully after restart.
-- Arm and disarm tested successfully from the Home Assistant alarm card.
-- No Visonic-related errors observed in the Home Assistant logs.
+- Confirmed a real `LOW_BATTERY` trouble from **Family room / Zone 4** was detected correctly.
+- New `sensor.visonic_alarm_trouble` entity loaded successfully in Home Assistant.
+- Python syntax checks passed for all modified integration files.
+- Home Assistant restarted successfully with the new trouble sensor active.
