@@ -249,7 +249,7 @@ class System(object):
     
         # Geef voorkeur aan de hoogste versie die we kennen
         preferred = None
-        for version in ['14.0', '13.0', '12.0', '10.0', '9.0', '8.0']:
+        for version in ['15.0', '14.0', '13.0', '12.0', '10.0', '9.0', '8.0']:
             if version in rest_versions:
                 preferred = version
                 break
@@ -259,7 +259,7 @@ class System(object):
             self.__api.setVersionUrls(preferred)
         else:
             raise Exception(
-                'Visonics Rest API versions 8.0, 9.0, 10.0, 12.0, 13.0 or 14.0 are not supported by server. '
+                'Visonics Rest API versions 8.0, 9.0, 10.0, 12.0, 13.0, 14.0 or 15.0 are not supported by server. '
                 f'Supported versions: {", ".join(rest_versions)}'
             )
     
