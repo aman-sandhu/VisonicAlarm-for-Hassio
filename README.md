@@ -258,6 +258,13 @@ The required Python package is installed automatically by Home Assistant.
 
 ## Release Notes
 
+### v2026.10.1
+
+- Added support for Visonic REST API version `15.0`.
+- Restored connectivity after the Visonic server stopped accepting older REST API versions.
+- Kept fallback support for older supported API versions.
+- Verified alarm state, arm, and disarm operation on API `15.0`.
+
 ### v2026.10.0
 
 - Added **Visonic Alarm Trouble** sensor.
@@ -300,4 +307,4 @@ You are responsible for determining whether this integration is appropriate for 
 
 Current stable GUI/config-entry release:
 
-v2026.10.0
+v2026.10.1
