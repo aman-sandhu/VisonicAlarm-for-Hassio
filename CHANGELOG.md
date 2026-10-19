@@ -1,3 +1,15 @@
+## v2026.10.1 - 2026-10-19
+
+### Fixed
+- Added support for Visonic REST API version `15.0`.
+- Restored integration connectivity after the Visonic server stopped accepting older REST API versions.
+- Preserved fallback support for REST API versions `14.0`, `13.0`, `12.0`, `10.0`, `9.0`, and `8.0`.
+
+### Tested
+- Integration reconnected successfully using REST API `15.0`.
+- Alarm state returned from `Unknown` to normal operation.
+- Arm and disarm tested successfully.
+- Python syntax check passed for the modified Visonic API code.
 ## v2026.10.0 - 2026-10-17
 
 ### Added
